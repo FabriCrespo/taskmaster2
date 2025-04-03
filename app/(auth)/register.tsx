@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
-import { StyleSheet, View, TextInput, TouchableOpacity, Text, Animated, Easing } from 'react-native';
+import { useState } from 'react';
+import { StyleSheet, View, TextInput, TouchableOpacity, Text, Dimensions, Image } from 'react-native';
 import { Link, router } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { LinearGradient } from 'expo-linear-gradient';
+
+const { width } = Dimensions.get('window');
 
 export default function Register() {
   const [agentName, setAgentName] = useState('');
@@ -10,39 +12,6 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [fadeAnim] = useState(new Animated.Value(0));
-  const [matrixChars] = useState('MATRIX1234567890'.split(''));
-  const [rainDrops] = useState(Array(15).fill(0).map(() => new Animated.Value(0)));
-
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 2000,
-      useNativeDriver: true,
-    }).start();
-
-    rainDrops.forEach((drop, i) => {
-      startRainAnimation(drop, i);
-    });
-  }, []);
-
-  const startRainAnimation = (drop: Animated.Value, index: number) => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(drop, {
-          toValue: 1,
-          duration: 3000 + (index * 500),
-          easing: Easing.linear,
-          useNativeDriver: true,
-        }),
-        Animated.timing(drop, {
-          toValue: 0,
-          duration: 0,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  };
 
   const handleRegister = async () => {
     setLoading(true);
@@ -71,67 +40,49 @@ export default function Register() {
 
   return (
     <LinearGradient
-      colors={['#000000', '#001a00']}
+      colors={['#ffffff', '#f5f5f5']}
       style={styles.container}
     >
-      {/* Efecto Lluvia Matrix */}
-      {rainDrops.map((drop, index) => (
-        <Animated.Text
-          key={index}
-          style={[
-            styles.matrixRain,
-            {
-              left: `${(index / rainDrops.length) * 100}%`,
-              transform: [{
-                translateY: drop.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [-20, 800]
-                })
-              }],
-              opacity: drop.interpolate({
-                inputRange: [0, 0.5, 1],
-                outputRange: [0, 1, 0]
-              })
-            }
-          ]}
-        >
-          {matrixChars[Math.floor(Math.random() * matrixChars.length)]}
-        </Animated.Text>
-      ))}
-
-      <Animated.View style={[styles.form, { opacity: fadeAnim }]}>
+      <View style={styles.content}>
+        <Image 
+          source={require('@/assets/images/car.png')}
+          style={styles.deloreanImage}
+          resizeMode="contain"
+        />
         <Text style={styles.title}>TaskMaster</Text>
-        <Text style={styles.subtitle}>Sistema de Registro de Agentes</Text>
+        <Text style={styles.subtitle}>Únete a nuestra comunidad</Text>
         
         {error && <Text style={styles.error}>{error}</Text>}
         
-        <TextInput
-          style={styles.input}
-          placeholder="Nombre del Agente"
-          placeholderTextColor="#00ff00"
-          value={agentName}
-          onChangeText={setAgentName}
-          autoCapitalize="none"
-        />
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Nombre"
+            placeholderTextColor="#a0a0a0"
+            value={agentName}
+            onChangeText={setAgentName}
+            autoCapitalize="none"
+          />
 
-        <TextInput
-          style={styles.input}
-          placeholder="Identificación [Email]"
-          placeholderTextColor="#00ff00"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-        />
-        
-        <TextInput
-          style={styles.input}
-          placeholder="Código de Acceso"
-          placeholderTextColor="#00ff00"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
+          <TextInput
+            style={styles.input}
+            placeholder="Correo Electrónico"
+            placeholderTextColor="#a0a0a0"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
+          
+          <TextInput
+            style={styles.input}
+            placeholder="Contraseña"
+            placeholderTextColor="#a0a0a0"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+        </View>
         
         <TouchableOpacity
           style={[styles.button, loading && styles.buttonDisabled]}
@@ -139,18 +90,18 @@ export default function Register() {
           disabled={loading}
         >
           <Text style={styles.buttonText}>
-            {loading ? 'Iniciando Protocolo...' : 'Iniciar Protocolo de Registro'}
+            {loading ? 'Registrando...' : 'Crear Cuenta'}
           </Text>
         </TouchableOpacity>
         
         <Link href="/login" asChild>
           <TouchableOpacity style={styles.linkButton}>
             <Text style={styles.linkText}>
-              ¿Ya estás en el sistema? Accede aquí
+              ¿Ya tienes cuenta? Inicia sesión aquí
             </Text>
           </TouchableOpacity>
         </Link>
-      </Animated.View>
+      </View>
     </LinearGradient>
   );
 }
@@ -161,109 +112,96 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
-  matrixRain: {
-    color: '#00ff00',
-    fontSize: 20,
-    fontFamily: 'TVCD',
-    position: 'absolute',
-    top: 0,
+  content: {
+    width: '100%',
+    maxWidth: 400,
+    alignSelf: 'center',
   },
-  form: {
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    padding: 25,
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: '#00ff00',
-    shadowColor: '#00ff00',
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    shadowOpacity: 0.5,
-    shadowRadius: 20,
-    elevation: 5,
+  deloreanImage: {
+    width: width * 0.8,
+    height: 150,
+    alignSelf: 'center',
+    marginBottom: 20,
   },
   title: {
-    fontSize: 28,
+    fontSize: 42,
     fontWeight: 'bold',
-    marginBottom: 25,
+    marginBottom: 10,
     textAlign: 'center',
-    color: '#00ff00',
-    textShadowColor: '#00ff00',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 10,
+    color: '#000000',
     fontFamily: 'TVCD',
+    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   subtitle: {
     fontSize: 16,
-    marginBottom: 20,
+    marginBottom: 40,
     textAlign: 'center',
-    color: '#00ff00',
+    color: '#666666',
     fontFamily: 'TVCD',
-    textShadowColor: '#00ff00',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 5,
+  },
+  inputContainer: {
+    gap: 15,
+    marginBottom: 25,
   },
   input: {
+    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#00ff00',
+    borderColor: '#e0e0e0',
     padding: 15,
-    borderRadius: 8,
-    marginBottom: 15,
-    color: '#00ff00',
-    backgroundColor: 'rgba(0, 255, 0, 0.1)',
+    borderRadius: 12,
+    fontSize: 16,
+    color: '#000000',
     fontFamily: 'TVCD',
-    fontSize: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   button: {
-    backgroundColor: '#00cc00',
+    backgroundColor: '#e74c3c',
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#00ff00',
-    shadowColor: '#00ff00',
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
+    marginTop: 10,
+    shadowColor: '#e74c3c',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
     elevation: 5,
   },
   buttonDisabled: {
-    backgroundColor: '#004400',
-    borderColor: '#004400',
+    backgroundColor: 'rgba(231, 76, 60, 0.7)',
   },
   buttonText: {
-    color: '#000000',
-    fontWeight: 'bold',
-    fontSize: 14,
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
     fontFamily: 'TVCD',
-    textShadowColor: '#00ff00',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 5,
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   linkButton: {
-    marginTop: 15,
+    marginTop: 20,
     alignItems: 'center',
-    padding: 10,
-    borderRadius: 8,
-    backgroundColor: 'rgba(0, 255, 0, 0.1)',
   },
   linkText: {
-    color: '#00ff00',
-    fontFamily: 'TVCD',
+    color: '#e74c3c',
     fontSize: 14,
-    textShadowColor: '#00ff00',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 10,
+    textDecorationLine: 'underline',
+    fontFamily: 'TVCD',
   },
   error: {
-    color: '#ff0000',
+    color: '#e74c3c',
     marginBottom: 15,
     textAlign: 'center',
     fontFamily: 'TVCD',
+    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+    padding: 10,
+    borderRadius: 8,
   },
 });
 

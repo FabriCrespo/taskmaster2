@@ -11,6 +11,14 @@ export default function TabLayout() {
           borderTopWidth: 1,
           borderTopColor: '#e2e8f0',
         },
+        tabBarLabelStyle: {
+          fontFamily: 'TVCD',
+          fontSize: 12,
+        },
+        headerTitleStyle: {
+          fontFamily: 'TVCD',
+          fontSize: 20,
+        }
       }}>
       <Tabs.Screen
         name="index"
