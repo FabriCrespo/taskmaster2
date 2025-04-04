@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { ListTodo, Settings } from 'lucide-react-native';
+import { ListTodo, User, Clock } from 'lucide-react-native';
 
 export default function TabLayout() {
   return (
@@ -30,11 +30,20 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="timeline"
+        options={{
+          title: 'Timeline',
+          tabBarIcon: ({ color, size }) => (
+            <Clock size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="settings"
         options={{
-          title: 'Settings',
+          title: 'My Profile',
           tabBarIcon: ({ color, size }) => (
-            <Settings size={size} color={color} />
+            <User size={size} color={color} />
           ),
         }}
       />
